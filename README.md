@@ -40,10 +40,13 @@ func main() {
 		},
 	}
 
+	// create a scanner
+	s := scanner.New()
+
 	// start a scan
 	output := make(chan scanner.Status, len(services))
 	done := make(chan bool, 1)
-	go scanner.Scan(output, done, services...)
+	go s.Scan(output, done, services...)
 
 	// print the output as a stream
 	for status := range output {

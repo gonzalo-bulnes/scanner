@@ -13,8 +13,11 @@ type Status interface{}
 // CheckFunc is a function that the scanner can use to check the status of a service.
 type CheckFunc func() Status
 
+// Scanner allows to scan services checking their status.
+type Scanner struct{}
+
 // Scan checks the status of multiple services concurrently.
-func Scan(out chan<- Status, done chan<- bool, services ...Service) {
+func (s *Scanner) Scan(out chan<- Status, done chan<- bool, services ...Service) {
 	var wg sync.WaitGroup
 
 	for _, service := range services {
@@ -28,4 +31,9 @@ func Scan(out chan<- Status, done chan<- bool, services ...Service) {
 
 	close(out)
 	done <- true
+}
+
+// New returns a new scanner.
+func New() *Scanner {
+	return &Scanner{}
 }

@@ -16,7 +16,8 @@ func (e Example) Check() Status {
 
 func TestScan(t *testing.T) {
 
-	setup := func() (services []Service, output chan Status, done chan bool) {
+	setup := func() (scanner *Scanner, services []Service, output chan Status, done chan bool) {
+		scanner = New()
 		services = []Service{
 			Example{status: "ok"},
 			Example{status: "good"},
@@ -27,9 +28,9 @@ func TestScan(t *testing.T) {
 	}
 
 	t.Run("checks all services", func(t *testing.T) {
-		services, output, done := setup()
+		scanner, services, output, done := setup()
 
-		Scan(output, done, services...)
+		scanner.Scan(output, done, services...)
 		<-done
 
 		if checks, expected := len(output), len(services); checks != expected {
@@ -38,9 +39,9 @@ func TestScan(t *testing.T) {
 	})
 
 	t.Run("allows to retrieve the status of all services", func(t *testing.T) {
-		services, output, done := setup()
+		scanner, services, output, done := setup()
 
-		Scan(output, done, services...)
+		scanner.Scan(output, done, services...)
 		<-done
 
 		all := []string{}
