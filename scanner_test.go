@@ -16,32 +16,35 @@ func (e Example) Check() Status {
 
 func TestScan(t *testing.T) {
 
-	setup := func() (scanner *Scanner, services []Service) {
+	setup := func() (services []Service, output chan Status, done chan bool) {
 		services = []Service{
 			Example{status: "ok"},
 			Example{status: "good"},
 		}
-		scanner = New()
+		output = make(chan Status, len(services))
+		done = make(chan bool, 1)
 		return
 	}
 
 	t.Run("checks all services", func(t *testing.T) {
-		scanner, services := setup()
+		services, output, done := setup()
 
-		scanner.Scan(services...)
+		Scan(output, done, services...)
+		<-done
 
-		if size, expected := len(scanner.Output), len(services); size != expected {
-			t.Errorf("Expected %d elements, got %d", expected, size)
+		if checks, expected := len(output), len(services); checks != expected {
+			t.Errorf("Expected %d elements, got %d", expected, checks)
 		}
 	})
 
 	t.Run("allows to retrieve the status of all services", func(t *testing.T) {
-		scanner, services := setup()
+		services, output, done := setup()
 
-		scanner.Scan(services...)
+		Scan(output, done, services...)
+		<-done
 
 		all := []string{}
-		for status := range scanner.Output {
+		for status := range output {
 			all = append(all, status.(string))
 		}
 		sort.Strings(all)
