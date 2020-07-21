@@ -12,52 +12,67 @@ Usage
 package main
 
 import (
+	"context"
 	"fmt"
 	"time"
 
 	"github.com/gonzalo-bulnes/scanner"
 )
 
-// example of a Service
+// example service which status check takes time.
 type example struct {
-	delay  time.Duration
-	status string
+	duration time.Duration
+	status   string
+	name     string
 }
 
-func (e example) Check() scanner.Status {
-	time.Sleep(e.delay)
-	return e.status
+// Check is an example check function that supports cancellation.
+func (e example) Check(ctx context.Context) scanner.Status {
+	select {
+	case <-ctx.Done():
+		return exampleStatus{err: fmt.Errorf("%s: %w", e.name, ctx.Err())}
+	case <-time.After(e.duration):
+		return exampleStatus{value: e.status}
+	}
+}
+
+// exampleStatus also conveys errors.
+type exampleStatus struct {
+	value string
+	err   error
+}
+
+func (s exampleStatus) Value() interface{} {
+	return s.value
+}
+
+func (s exampleStatus) Err() error {
+	return s.err
 }
 
 func main() {
 	services := []scanner.Service{
-		example{
-			status: "ok"
-	},
-		example{
-			delay: 2 * time.Second,
-			status: "good"
-		},
+		example{name: "fast           ", status: "ok"},
+		example{name: "not fast at all", duration: 3 * time.Second, status: "too slow"},
+		example{name: "not so fast    ", duration: 500 * time.Millisecond, status: "running slow"},
 	}
 
-	// create a scanner
 	s := scanner.New()
 
-	// start a scan
+	ctx, cancel := context.WithTimeout(context.Background(), 800*time.Millisecond)
+	defer cancel()
+
 	output := make(chan scanner.Status, len(services))
 	done := make(chan bool, 1)
-	go s.Scan(output, done, services...)
+	go s.Scan(ctx, output, done, services...)
 
-	// print the output as a stream
 	for status := range output {
-		fmt.Println(status)
+		if err := status.Err(); err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Println(status.Value().(string))
+		}
 	}
 	<-done
-
-	// alternatively wait until the scan is done
-	<-done
-	for status := range output {
-		fmt.Println(status)
-	}
 }
 ```
