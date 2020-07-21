@@ -11,7 +11,10 @@ type Service interface {
 }
 
 // Status represents the status of a service.
-type Status interface{}
+type Status interface {
+	Value() interface{}
+	Err() error
+}
 
 // CheckFunc is a function that the scanner can use to check the status of a service.
 type CheckFunc func(ctx context.Context) Status

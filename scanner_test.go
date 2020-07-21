@@ -8,11 +8,24 @@ import (
 )
 
 type Example struct {
-	status string
+	status ExampleStatus
 }
 
 func (e Example) Check(ctx context.Context) Status {
 	return e.status
+}
+
+type ExampleStatus struct {
+	value string
+	err   error
+}
+
+func (s ExampleStatus) Value() interface{} {
+	return s.value
+}
+
+func (s ExampleStatus) Err() error {
+	return s.err
 }
 
 func TestScan(t *testing.T) {
@@ -20,8 +33,8 @@ func TestScan(t *testing.T) {
 	setup := func() (scanner *Scanner, services []Service, output chan Status, done chan bool) {
 		scanner = New()
 		services = []Service{
-			Example{status: "ok"},
-			Example{status: "good"},
+			Example{status: ExampleStatus{value: "ok"}},
+			Example{status: ExampleStatus{value: "good"}},
 		}
 		output = make(chan Status, len(services))
 		done = make(chan bool, 1)
@@ -47,7 +60,7 @@ func TestScan(t *testing.T) {
 
 		all := []string{}
 		for status := range output {
-			all = append(all, status.(string))
+			all = append(all, status.Value().(string))
 		}
 		sort.Strings(all)
 
