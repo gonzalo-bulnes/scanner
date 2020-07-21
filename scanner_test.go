@@ -1,6 +1,7 @@
 package scanner
 
 import (
+	"context"
 	"sort"
 	"strings"
 	"testing"
@@ -10,7 +11,7 @@ type Example struct {
 	status string
 }
 
-func (e Example) Check() Status {
+func (e Example) Check(ctx context.Context) Status {
 	return e.status
 }
 
@@ -30,7 +31,7 @@ func TestScan(t *testing.T) {
 	t.Run("checks all services", func(t *testing.T) {
 		scanner, services, output, done := setup()
 
-		scanner.Scan(output, done, services...)
+		scanner.Scan(context.Background(), output, done, services...)
 		<-done
 
 		if checks, expected := len(output), len(services); checks != expected {
@@ -41,7 +42,7 @@ func TestScan(t *testing.T) {
 	t.Run("allows to retrieve the status of all services", func(t *testing.T) {
 		scanner, services, output, done := setup()
 
-		scanner.Scan(output, done, services...)
+		scanner.Scan(context.Background(), output, done, services...)
 		<-done
 
 		all := []string{}
