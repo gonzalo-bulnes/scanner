@@ -55,11 +55,10 @@ func (s Status) Err() error {
 func (i *Instance) Check(ctx context.Context) scanner.Status {
 
 	metadataURL := fmt.Sprintf(instanceMetadataURLPattern, i.URL)
-	req, err := http.NewRequest("GET", metadataURL, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", metadataURL, nil)
 	if err != nil {
 		err = fmt.Errorf("status request creation failed: %w", err)
 	}
-	req.WithContext(ctx)
 
 	c, err := tor.NewClient()
 	if err != nil {

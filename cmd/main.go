@@ -47,7 +47,7 @@ func main() {
 
 	s := scanner.New()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 800*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	output := make(chan scanner.Status, len(services))
