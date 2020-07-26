@@ -1,0 +1,6 @@
+version: ~> 1.0
+language: go
+
+go:
+  - 1.x
+script: go test -v ./...
