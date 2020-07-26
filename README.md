@@ -63,8 +63,7 @@ func main() {
 	defer cancel()
 
 	output := make(chan scanner.Status, len(services))
-	done := make(chan bool, 1)
-	go s.Scan(ctx, output, done, services...)
+	go s.Scan(ctx, output, services...)
 
 	for status := range output {
 		if err := status.Err(); err != nil {
@@ -73,6 +72,5 @@ func main() {
 			fmt.Println(status.Value().(string))
 		}
 	}
-	<-done
 }
 ```

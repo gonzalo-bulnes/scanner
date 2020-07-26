@@ -23,7 +23,7 @@ type CheckFunc func(ctx context.Context) Status
 type Scanner struct{}
 
 // Scan checks the status of multiple services concurrently.
-func (s *Scanner) Scan(ctx context.Context, output chan<- Status, done chan<- bool, services ...Service) {
+func (s *Scanner) Scan(ctx context.Context, output chan<- Status, services ...Service) {
 	var wg sync.WaitGroup
 
 	for _, service := range services {
@@ -36,7 +36,6 @@ func (s *Scanner) Scan(ctx context.Context, output chan<- Status, done chan<- bo
 	wg.Wait()
 
 	close(output)
-	done <- true
 }
 
 // New returns a new scanner.

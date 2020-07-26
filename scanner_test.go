@@ -42,21 +42,24 @@ func TestScan(t *testing.T) {
 	}
 
 	t.Run("checks all services", func(t *testing.T) {
-		scanner, services, output, done := setup()
+		scanner, services, output, _ := setup()
 
-		scanner.Scan(context.Background(), output, done, services...)
-		<-done
+		scanner.Scan(context.Background(), output, services...)
 
-		if checks, expected := len(output), len(services); checks != expected {
+		responses := []Status{}
+		for response := range output {
+			responses = append(responses, response)
+		}
+
+		if checks, expected := len(responses), len(services); checks != expected {
 			t.Errorf("Expected %d elements, got %d", expected, checks)
 		}
 	})
 
 	t.Run("allows to retrieve the status of all services", func(t *testing.T) {
-		scanner, services, output, done := setup()
+		scanner, services, output, _ := setup()
 
-		scanner.Scan(context.Background(), output, done, services...)
-		<-done
+		scanner.Scan(context.Background(), output, services...)
 
 		all := []string{}
 		for status := range output {
