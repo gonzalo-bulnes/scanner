@@ -7,27 +7,6 @@ import (
 	"testing"
 )
 
-type Example struct {
-	status ExampleStatus
-}
-
-func (e Example) Check(ctx context.Context) Status {
-	return e.status
-}
-
-type ExampleStatus struct {
-	value string
-	err   error
-}
-
-func (s ExampleStatus) Value() interface{} {
-	return s.value
-}
-
-func (s ExampleStatus) Err() error {
-	return s.err
-}
-
 func TestScan(t *testing.T) {
 
 	setup := func() (scanner *Scanner, services []Service, output chan Status, done chan bool) {
