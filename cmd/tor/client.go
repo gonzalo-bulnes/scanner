@@ -19,7 +19,7 @@ type Client = http.Client
 func NewClient() (*Client, error) {
 	dialer, err := proxy.SOCKS5("tcp", proxyAddr, nil, proxy.Direct)
 	if err != nil {
-		return nil, fmt.Errorf("error when creating Tor client")
+		return nil, fmt.Errorf("error when creating Tor client, %w", err)
 	}
 
 	httpTransport := &http.Transport{}

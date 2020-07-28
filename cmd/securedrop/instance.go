@@ -21,6 +21,8 @@ type Metadata struct {
 
 // Instance represents a SecureDrop instance.
 type Instance struct {
+	client    *tor.Client
+	doRequest func(*http.Request) (*http.Response, error)
 	Available bool
 	Info      Metadata
 	URL       string `json:"Url"`
@@ -32,10 +34,13 @@ func (i *Instance) CSV() string {
 }
 
 // NewInstance returns a new SecureDrop instance.
-func NewInstance(url string) *Instance {
-	return &Instance{
-		URL: url,
+func NewInstance(client *tor.Client, url string) *Instance {
+	i := &Instance{
+		client: client,
+		URL:    url,
 	}
+	i.doRequest = client.Do
+	return i
 }
 
 // Status of a SecureDrop instance.
@@ -44,14 +49,17 @@ type Status struct {
 	err   error
 }
 
+// Value implements the scanner.Status interface.
 func (s Status) Value() interface{} {
 	return s.value
 }
 
+// Err implements the scanner.Status interface.
 func (s Status) Err() error {
 	return s.err
 }
 
+// Check implements the scanner.Service interface.
 func (i *Instance) Check(ctx context.Context) scanner.Status {
 
 	metadataURL := fmt.Sprintf(instanceMetadataURLPattern, i.URL)
@@ -60,12 +68,7 @@ func (i *Instance) Check(ctx context.Context) scanner.Status {
 		err = fmt.Errorf("status request creation failed: %w", err)
 	}
 
-	c, err := tor.NewClient()
-	if err != nil {
-		return Status{err: fmt.Errorf("status check error: %w", err)}
-	}
-
-	resp, err := c.Do(req)
+	resp, err := i.doRequest(req)
 	if err != nil {
 		return Status{err: fmt.Errorf("status check error: %w", err)}
 	}
