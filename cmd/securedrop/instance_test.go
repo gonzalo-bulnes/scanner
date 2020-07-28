@@ -3,6 +3,7 @@ package securedrop
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -80,7 +81,7 @@ func TestInstanceCheck(t *testing.T) {
 		}
 	})
 
-	t.Run("can be serialized after successful check", func(t *testing.T) {
+	t.Run("can be serialized as CSV after successful check", func(t *testing.T) {
 		i := NewInstance(nil, "some.onion")
 		i.doRequest = func(*http.Request) (*http.Response, error) {
 			body := ioutil.NopCloser(bytes.NewBufferString(`{"hello": "world"}`))
@@ -99,6 +100,32 @@ func TestInstanceCheck(t *testing.T) {
 
 		if csv := i.CSV(); csv != expectedCSV {
 			t.Errorf("Expected '%s', got '%s'", expectedCSV, csv)
+		}
+	})
+
+	t.Run("can be serialized as JSON after successful check", func(t *testing.T) {
+		i := NewInstance(nil, "some.onion")
+		i.doRequest = func(*http.Request) (*http.Response, error) {
+			body := ioutil.NopCloser(bytes.NewBufferString(`{"gpg_fpr":"fingerprint", "sd_version":"1.4.1"}`))
+			return &http.Response{
+				Body:       body,
+				StatusCode: http.StatusOK,
+			}, nil
+		}
+
+		expected := `{"Available":true,"Info":{"gpg_fpr":"fingerprint","sd_version":"1.4.1"},"Url":"some.onion"}`
+
+		result := i.Check(context.Background())
+		if err := result.Err(); err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+
+		j, err := json.Marshal(i)
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		if result := string(j); result != expected {
+			t.Errorf("Expected '%s', got '%s'", expected, result)
 		}
 	})
 }

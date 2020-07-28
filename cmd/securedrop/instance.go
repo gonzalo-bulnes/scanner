@@ -76,6 +76,7 @@ func (i *Instance) Check(ctx context.Context) scanner.Status {
 	if resp.StatusCode != http.StatusOK {
 		return Status{err: fmt.Errorf("instance responded with HTTP %d", resp.StatusCode)}
 	}
+	i.Available = true
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
