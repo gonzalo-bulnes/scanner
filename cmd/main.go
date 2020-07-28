@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/gonzalo-bulnes/scanner"
 	"github.com/gonzalo-bulnes/scanner/cmd/securedrop"
+	"github.com/gonzalo-bulnes/scanner/cmd/tor"
 )
 
 // example service which status check takes time.
@@ -41,8 +43,14 @@ func (s exampleStatus) Err() error {
 }
 
 func main() {
+	client, err := tor.NewClient()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	services := []scanner.Service{
-		securedrop.NewInstance("missing.onion"),
+		securedrop.NewInstance(client, "missing.onion"),
 	}
 
 	s := scanner.New()
