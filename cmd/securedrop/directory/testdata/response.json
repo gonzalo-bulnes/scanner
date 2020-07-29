@@ -1,0 +1,61 @@
+[
+    {
+        "title": "Public Intelligence",
+        "slug": "public-intelligence",
+        "directory_url": "https://securedrop.org/directory/public-intelligence/",
+        "first_published_at": "2018-03-28T05:39:21.461705Z",
+        "landing_page_url": "https://publicintelligence.net/contribute/",
+        "onion_address": "arujlhu2zjjhc3bw.onion",
+        "organization_logo": {
+            "url": "/media/images/pilogo.max-1500x1500.png",
+            "width": 500,
+            "height": 450
+        },
+        "organization_description": "Public Intelligence is a collaborative project to defend the public's right to information.",
+        "languages": [
+            "English"
+        ],
+        "topics": [
+            "business",
+            "environment",
+            "government",
+            "health",
+            "war"
+        ],
+        "countries": [
+            "All countries"
+        ]
+    },
+    {
+        "title": "The Guardian",
+        "slug": "guardian",
+        "directory_url": "https://securedrop.org/directory/guardian/",
+        "first_published_at": "2017-11-09T19:57:47.051165Z",
+        "landing_page_url": "https://www.theguardian.com/securedrop",
+        "onion_address": "33y6fjyhs3phzfjj.onion",
+        "organization_logo": {
+            "url": "/media/images/Guardian_titlepiece.max-1500x1500.png",
+            "width": 1500,
+            "height": 481
+        },
+        "organization_description": "The Guardian is a British daily newspaper.",
+        "languages": [
+            "All languages",
+            "English"
+        ],
+        "topics": [
+            "business",
+            "civil liberties",
+            "environment",
+            "government",
+            "health",
+            "national security",
+            "technology"
+        ],
+        "countries": [
+            "All countries",
+            "UK",
+            "USA"
+        ]
+    }
+]
