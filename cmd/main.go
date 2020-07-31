@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gonzalo-bulnes/scanner"
+	"github.com/gonzalo-bulnes/scanner/cmd/securedrop/directory"
 	"github.com/gonzalo-bulnes/scanner/cmd/securedrop/instance"
 	"github.com/gonzalo-bulnes/scanner/cmd/tor"
 )
@@ -18,14 +19,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	services := []scanner.Service{
-		instance.New(client, "missing.onion"),
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+
+	d := directory.New(client)
+	entries, err := d.Get(ctx)
+
+	services := make([]scanner.Service, len(entries))
+	for i, entry := range entries {
+		services[i] = instance.New(client, entry.OnionAddress)
 	}
 
 	s := scanner.New()
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
 
 	output := make(chan scanner.Status, len(services))
 	go s.Scan(ctx, output, services...)
@@ -34,7 +39,9 @@ func main() {
 		if err := status.Err(); err != nil {
 			fmt.Println(err)
 		} else {
-			fmt.Println(status.Value().(instance.Metadata))
+			metadata := status.Value().(instance.Metadata)
+			line := instance.NewOutputLineFromMetadata(metadata)
+			fmt.Print(line.CSV())
 		}
 	}
 }
