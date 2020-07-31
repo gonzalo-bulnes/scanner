@@ -1,0 +1,11 @@
+{
+    "v2_source_url": "nyttips4bmquxfzw.onion",
+    "supported_languages": [
+        "en_US"
+    ],
+    "gpg_fpr": "C0A7BC8D9694BF2FC5EF31EB30614C130E1E864A",
+    "sd_version": "1.5.0",
+    "v3_source_url": null,
+    "allow_document_uploads": true,
+    "server_os": "16.04"
+}
