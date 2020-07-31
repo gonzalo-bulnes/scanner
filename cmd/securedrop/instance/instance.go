@@ -63,6 +63,7 @@ func (i *Instance) GetMetadata(ctx context.Context) (m Metadata, err error) {
 		err = fmt.Errorf("error deserializing instance response: %w", err)
 		return
 	}
+	m.URL = i.URL
 	return
 }
 

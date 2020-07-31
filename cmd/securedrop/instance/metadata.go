@@ -2,6 +2,7 @@ package instance
 
 // Metadata represents the metadata of a SecureDrop instance.
 type Metadata struct {
+	URL                  string
 	Available            bool
 	AllowDocumentUploads bool     `json:"allow_document_uploads"`
 	GPGFingerprint       string   `json:"gpg_fpr"`
