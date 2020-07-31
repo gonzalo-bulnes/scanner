@@ -1,0 +1,18 @@
+[
+    {
+        "Info": {
+            "sd_version": "0.6",
+            "gpg_fpr": "3392A1CE68FE779A95FCAF04EDA0FB6F53FA9093"
+        },
+        "Url": "m4hynbhhctdk27jr.onion",
+        "Available": true
+    },
+    {
+        "Info": {
+            "sd_version": "0.6",
+            "gpg_fpr": "7C24A77EED0D50838E3315BD7A38590B2996F0C2"
+        },
+        "Url": "ftugftwajmgsmoau.onion",
+        "Available": true
+    }
+]
