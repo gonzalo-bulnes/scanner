@@ -14,16 +14,14 @@ import (
 
 func main() {
 	client, err := tor.NewClient()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	checkError(err)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 
 	d := directory.New(client)
 	entries, err := d.Get(ctx)
+	checkError(err)
 
 	services := make([]scanner.Service, len(entries))
 	for i, entry := range entries {
@@ -36,12 +34,20 @@ func main() {
 	go s.Scan(ctx, output, services...)
 
 	for status := range output {
-		if err := status.Err(); err != nil {
-			fmt.Println(err)
-		} else {
-			metadata := status.Value().(instance.Metadata)
-			line := instance.NewOutputLineFromMetadata(metadata)
-			fmt.Print(line.CSV())
-		}
+		checkError(status.Err())
+
+		metadata := status.Value().(instance.Metadata)
+		line := instance.NewOutputLineFromMetadata(metadata)
+		bytes, err := line.JSONL()
+		checkError(err)
+
+		fmt.Println(string(bytes))
+	}
+}
+
+func checkError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
