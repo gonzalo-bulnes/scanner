@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 )
 
 func setup() (scanner *Scanner, services []Service, output chan Status) {
@@ -76,6 +77,48 @@ func TestScanAndWait(t *testing.T) {
 
 		if result, expected := strings.Join(all, " "), "good ok"; result != expected {
 			t.Errorf("Expected '%s', got '%s'", expected, result)
+		}
+	})
+}
+
+func TestSetWorkerCount(t *testing.T) {
+
+	t.Run("allows to set a limit to concurrency", func(t *testing.T) {
+		scanner, _, _ := setup()
+		scanner.SetWorkerCount(1)
+
+		services := []Service{
+			Example{status: ExampleStatus{value: "ok"}, duration: 200 * time.Millisecond},
+			Example{status: ExampleStatus{value: "good"}, duration: 300 * time.Millisecond},
+		}
+
+		start := time.Now()
+		_ = scanner.ScanAndWait(context.Background(), services...)
+		end := time.Now()
+		elapsed := end.Sub(start)
+
+		if expected := 500 * time.Millisecond; elapsed < expected {
+			t.Errorf("Expected checks to take at least %d duration, got %d", expected, elapsed)
+		}
+	})
+
+	t.Run("allows to disable the concurrency limit", func(t *testing.T) {
+		scanner, _, _ := setup()
+		scanner.SetWorkerCount(1)
+		scanner.SetWorkerCount(0)
+
+		services := []Service{
+			Example{status: ExampleStatus{value: "ok"}, duration: 200 * time.Millisecond},
+			Example{status: ExampleStatus{value: "good"}, duration: 300 * time.Millisecond},
+		}
+
+		start := time.Now()
+		_ = scanner.ScanAndWait(context.Background(), services...)
+		end := time.Now()
+		elapsed := end.Sub(start)
+
+		if expected := 400 * time.Millisecond; elapsed > expected {
+			t.Errorf("Expected checks to take at most %d duration (conservative approximation), got %d", expected, elapsed)
 		}
 	})
 }
