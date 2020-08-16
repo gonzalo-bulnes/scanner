@@ -23,7 +23,9 @@ type Status interface {
 type CheckFunc func(ctx context.Context) Status
 
 // Scanner allows to scan services checking their status.
-type Scanner struct{}
+type Scanner struct {
+	workerCount int
+}
 
 // New returns a new scanner.
 func New() *Scanner {
@@ -34,7 +36,7 @@ func New() *Scanner {
 //
 // The output channel will be closed when the scan is done.
 func (s *Scanner) Scan(ctx context.Context, output chan<- Status, services ...Service) {
-	scan(ctx, output, services...)
+	s.scan(ctx, output, services...)
 	close(output)
 }
 
@@ -45,7 +47,7 @@ func (s *Scanner) Scan(ctx context.Context, output chan<- Status, services ...Se
 // the increased speed of concurrent checks by using this method.
 func (s *Scanner) ScanAndWait(ctx context.Context, services ...Service) []Status {
 	output := make(chan Status, len(services))
-	scan(ctx, output, services...)
+	s.scan(ctx, output, services...)
 	close(output)
 
 	responses := []Status{}
@@ -55,15 +57,43 @@ func (s *Scanner) ScanAndWait(ctx context.Context, services ...Service) []Status
 	return responses
 }
 
-func scan(ctx context.Context, output chan<- Status, services ...Service) {
+// SetWorkerCount allows to limit the number of services that will be checked concurrently.
+//
+// Setting the worker count to 0 disables the limit.
+func (s *Scanner) SetWorkerCount(n int) {
+	s.workerCount = n
+}
+
+func (s *Scanner) scan(ctx context.Context, output chan<- Status, services ...Service) {
 	var wg sync.WaitGroup
 
-	for _, service := range services {
+	wg.Add(1)
+	queue := make(chan Service, len(services))
+	go func() {
+		defer wg.Done()
+		enqueue(queue, services...)
+		close(queue)
+	}()
+
+	workerCount := len(services)
+	if s.workerCount > 0 {
+		workerCount = s.workerCount
+	}
+
+	for i := 0; i < workerCount; i++ {
 		wg.Add(1)
-		go func(check CheckFunc) {
+		go func() {
 			defer wg.Done()
-			output <- check(ctx)
-		}(service.Check)
+			for service := range queue {
+				output <- service.Check(ctx)
+			}
+		}()
 	}
 	wg.Wait()
+}
+
+func enqueue(queue chan Service, services ...Service) {
+	for _, service := range services {
+		queue <- service
+	}
 }
