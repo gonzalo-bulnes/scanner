@@ -29,6 +29,7 @@ func main() {
 	}
 
 	s := scanner.New()
+	s.SetWorkerCount(3)
 
 	output := make(chan scanner.Status, len(services))
 	go s.Scan(ctx, output, services...)
