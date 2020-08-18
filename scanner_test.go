@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+var ms time.Duration = 1_000_000 // ns
+
 func setup() (scanner *Scanner, services []Service, output chan Status) {
 	scanner = New()
 	services = []Service{
@@ -98,7 +100,7 @@ func TestSetWorkerCount(t *testing.T) {
 		elapsed := end.Sub(start)
 
 		if expected := 500 * time.Millisecond; elapsed < expected {
-			t.Errorf("Expected checks to take at least %d duration, got %d", expected, elapsed)
+			t.Errorf("Expected checks to take at least %dms, took %dms", expected/ms, elapsed/ms)
 		}
 	})
 
@@ -118,7 +120,7 @@ func TestSetWorkerCount(t *testing.T) {
 		elapsed := end.Sub(start)
 
 		if expected := 400 * time.Millisecond; elapsed > expected {
-			t.Errorf("Expected checks to take at most %d duration (conservative approximation), got %d", expected, elapsed)
+			t.Errorf("Expected checks to take at most %dms (conservative approximation), took %dms", expected/ms, elapsed/ms)
 		}
 	})
 }
