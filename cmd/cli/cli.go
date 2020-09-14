@@ -80,12 +80,20 @@ func (cli *CLI) Run() {
 
 		metadata := status.Value().(instance.Metadata)
 		line := instance.NewOutputLineFromMetadata(metadata)
-		bytes, err := line.JSONL()
-		if err != nil {
-			cli.err.Printf("Error formatting status of SecureDrop instance: %v\n", err)
-			continue
+
+		var status string
+		switch cfg.format {
+		case "csv":
+			status = line.CSV()
+		default:
+			bytes, err := line.JSONL()
+			if err != nil {
+				cli.err.Printf("Error formatting status of SecureDrop instance: %v\n", err)
+				continue
+			}
+			status = string(bytes)
 		}
 
-		cli.out.Printf(string(bytes))
+		cli.out.Printf(status)
 	}
 }
