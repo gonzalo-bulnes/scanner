@@ -59,14 +59,22 @@ func (cli *CLI) Run() {
 		defer cancel()
 	}
 
-	entries, err := cli.getDirectory(ctx)
-	if err != nil {
-		cli.err.Fatalf("Error fetching SecureDrop instances list: %v\n", err)
+	var services []scanner.Service
+	services = make([]scanner.Service, len(cfg.urls))
+	for i, url := range cfg.urls {
+		services[i] = instance.New(cli.client, url)
 	}
 
-	services := make([]scanner.Service, len(entries))
-	for i, entry := range entries {
-		services[i] = instance.New(cli.client, entry.OnionAddress)
+	if cfg.directory {
+		entries, err := cli.getDirectory(ctx)
+		if err != nil {
+			cli.err.Fatalf("Error fetching SecureDrop instances list: %v\n", err)
+		}
+
+		services = append(make([]scanner.Service, len(entries)), services...)
+		for i, entry := range entries {
+			services[i] = instance.New(cli.client, entry.OnionAddress)
+		}
 	}
 
 	output := make(chan scanner.Status, len(services))

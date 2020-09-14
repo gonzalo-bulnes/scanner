@@ -8,6 +8,7 @@ import (
 type config struct {
 	directory bool
 	format    string
+	urls      []string
 	timeout   time.Duration
 }
 
@@ -19,6 +20,8 @@ func makeConfigFromFlags() (cfg config) {
 	flag.DurationVar(&cfg.timeout, "t", 0, "general timeout, e.g. 20s")
 
 	flag.Parse()
+
+	cfg.urls = flag.Args()
 
 	return
 }
