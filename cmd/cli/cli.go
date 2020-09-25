@@ -14,14 +14,15 @@ import (
 
 // CLI provides a command-line interface for checking the availability of SecireDrop instances.
 type CLI struct {
-	client       *http.Client
-	directory    *directory.Directory
-	err          *log.Logger
-	out          *log.Logger
-	scanner      *scanner.Scanner
-	configure    func() config
-	getDirectory func(context.Context) ([]directory.Entry, error)
-	scan         func(context.Context, chan<- scanner.Status, ...scanner.Service)
+	client          *http.Client
+	directory       *directory.Directory
+	err             *log.Logger
+	out             *log.Logger
+	scanner         *scanner.Scanner
+	configure       func() config
+	getDirectory    func(context.Context) ([]directory.Entry, error)
+	scan            func(context.Context, chan<- scanner.Status, ...scanner.Service)
+	setWorkersCount func(n int)
 }
 
 // New returns a new CLI, or exits if the connection to the Tor network fails.
@@ -33,7 +34,7 @@ func New() *CLI {
 		scanner:   scanner.New(),
 		configure: makeConfigFromFlags,
 	}
-	cli.scanner.SetWorkerCount(3)
+	cli.setWorkersCount = cli.scanner.SetWorkerCount
 	cli.scan = cli.scanner.Scan
 
 	client, err := tor.NewClient()
@@ -76,6 +77,8 @@ func (cli *CLI) Run() {
 			services[i] = instance.New(cli.client, entry.OnionAddress)
 		}
 	}
+
+	cli.setWorkersCount(cfg.concurrency)
 
 	output := make(chan scanner.Status, len(services))
 	go cli.scan(ctx, output, services...)
