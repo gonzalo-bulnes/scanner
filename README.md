@@ -1,7 +1,7 @@
 Scanner
 =======
 
-[![GoDoc](https://godoc.org/github.com/gonzalo-bulnes/scanner?status.svg)](https://godoc.org/github.com/gonzalo-bulnes/scanner)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/gonzalo-bulnes/scanner)][godoc]
 [![Go Report Card](https://goreportcard.com/badge/github.com/gonzalo-bulnes/scanner)](https://goreportcard.com/report/github.com/gonzalo-bulnes/scanner)
 [![Build Status](https://travis-ci.org/gonzalo-bulnes/scanner.svg?branch=main)](https://travis-ci.org/gonzalo-bulnes/scanner)
 
@@ -10,9 +10,9 @@ Scan the status of multiple services concurrently.
 Usage
 -----
 
-There are examples in the package [documentation][godoc]!
+There are detailed examples in the package [documentation][godoc]!
 
-  [godoc]: https://godoc.org/github.com/gonzalo-bulnes/scanner
+  [godoc]: https://pkg.go.dev/github.com/gonzalo-bulnes/scanner
 
 
 Contributing
