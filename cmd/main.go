@@ -17,7 +17,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	metadata := d.Check(context.Background()).Value().(domain.Metadata)
+	metadata := status.Value().(domain.Metadata)
 	if metadata.CertificateValidUntil.Before(time.Now().Add(168 * time.Hour)) {
 		fmt.Printf("The TLS certificate for %s expires soon! It is valid until %v.\n", metadata.Name, metadata.CertificateValidUntil)
 		os.Exit(1)
